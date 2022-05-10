@@ -131,7 +131,7 @@ if __name__ == '__main__':
 
     # Process
     server = smtplib.SMTP_SSL("mail.rphaven.co.uk", 465, context=ssl.create_default_context())
-    server.login(env.sanchit_email_user, env.sanchit_email_pass)
+    server.login(env.admin_email_user, env.admin_email_pass)
     for user in userData:
         if args.verbose:
             print(str(user))

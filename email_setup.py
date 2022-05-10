@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import smtplib, ssl, email.message, secrets, subprocess, time
-from env import sanchit_email_user, sanchit_email_pass
+from env import admin_email_user, admin_email_pass
 valid_chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!#$%&()*+,-./:;<=>?@[\]^_{|}~"
 
 class RPHUser(object):
@@ -29,7 +29,7 @@ Regards,
 Sanchit
 '''
         self.message = email.message.EmailMessage()
-        self.message['From'] = 'sanchit@rphaven.co.uk'
+        self.message['From'] = admin_email_user
         self.message['To'] = self.email_addr
         self.message['Subject'] = 'RPHaven Email Account'
         self.message.set_content(messagetext)
@@ -93,7 +93,7 @@ if __name__ == '__main__':
     context = ssl.create_default_context()
 
     with smtplib.SMTP_SSL("rphaven.co.uk", port, context=context) as server:
-        server.login(sanchit_email_user, sanchit_email_pass)
+        server.login(admin_email_user, admin_email_pass)
         print("Logged in!")
 
         # If we're sending emails to everyone in the datafile, use this instead
