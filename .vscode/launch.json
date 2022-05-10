@@ -1,0 +1,59 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Email Setup",
+            "type": "python",
+            "request": "launch",
+            "program": "email_setup.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Migration dry run",
+            "type": "python",
+            "request": "launch",
+            "program": "migration.py",
+            "args": [
+                "--dry-run",
+                "test.csv"
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Migration dry run (verbose)",
+            "type": "python",
+            "request": "launch",
+            "program": "migration.py",
+            "args": [
+                "--dry-run",
+                "--verbose",
+                "test.csv"
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Migration",
+            "type": "python",
+            "request": "launch",
+            "program": "migration.py",
+            "args": [
+                "test.csv"
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Migration (verbose)",
+            "type": "python",
+            "request": "launch",
+            "program": "migration.py",
+            "args": [
+                "--verbose",
+                "fulldata.csv"
+            ],
+            "console": "integratedTerminal"
+        }
+    ]
+}

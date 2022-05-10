@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "RPHavenScripts"
+version = "0.0.1"
+description = "A collection of scripts for RPHaven administration"
+authors = ["Sanchit Sharma <sanchit@rphaven.co.uk>"]
+license = "GPL3"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+requests = "^2.27.1"
+argparse = "^1.4.0"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
