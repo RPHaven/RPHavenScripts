@@ -2,6 +2,7 @@
 
 from env import admin_email_user
 import email.message
+import peewee
 import secrets
 
 class RPHUser(object):
@@ -58,52 +59,3 @@ Sanchit
     
     def __repr__(self) -> str:
         return f'RPHUser object at {hex(id(self))}: Email: {self.rph_email} Personal Email: {self.email_addr}'
-
-class RPHBranch(object):
-    def __init__(self, name, **kwargs):
-        self._name = name
-
-        if 'rss_feed' in kwargs:
-            self.rss_feed = kwargs['rss_feed']
-            self.feed_base_url = 'https://rphaven.co.uk/rphavenrss'
-        else:
-            self._rss_feed = None
-            self.feed_base_url = None
-        
-        self._discord_channel, self._discord_role = None, None
-        if 'discord_channel' in kwargs:
-            self.discord_channel = kwargs['discord_channel']
-        if 'discord_role' in kwargs:
-            self.discord_role = kwargs['discord_role']
-    
-    @property
-    def name(self):
-        return self._name
-    
-    @property
-    def rss_feed(self):
-        return f'{self.feed_base_url}/{self._rss_feed}/'
-    @rss_feed.setter
-    def rss_feed(self, new_url):
-        if new_url[:3] in ['http', 'rss:']:
-            self._rss_feed = new_url.split('/')[-1]
-        else:
-            self._rss_feed = new_url.strip('/')
-    
-    @property
-    def discord_channel(self):
-        return self._discord_channel
-    @discord_channel.setter
-    def discord_channel(self, newval):
-        if type(newval) is not int:
-            raise TypeError("discord_channel must be of type int")
-        self._discord_channel = newval
-    
-    @property
-    def discord_role(self):
-        return self._discord_role
-    @discord_role.setter
-    def discord_role(self, newval):
-        if type(newval) is not int:
-            raise TypeError("discord_role must be of type int")
-        self._discord_role = newval

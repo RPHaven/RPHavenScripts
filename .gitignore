@@ -4,6 +4,10 @@
 # env.py contains secrets, and shouldn't be checked in
 env.py
 
+# SQLite DB (that backs the RPHaven bot)
+rphbot.db
+rphbot.db-journal
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
