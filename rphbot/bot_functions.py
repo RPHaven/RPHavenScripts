@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
+import os
 import peewee
-from requests import request
 
-db = peewee.SqliteDatabase('rphbot.db')
+db = peewee.SqliteDatabase(os.path.dirname(os.path.realpath(__file__)) + '/rphbot.db')
 db.connect()
 
 class RPHBranch(peewee.Model):
@@ -99,6 +99,13 @@ name: Required, the name of the branch to delete. Note: this is irreversible!'''
             return f'Deleted {name}!'
         else:
             return f'Could not find a branch named {name}!'
+    
+    def show_all(self, args):
+        names = []
+        for item in RPHBranch.select():
+            names.append(item.name)
+        names = "\n".join(names)
+        return f'All branches:\n{names}'
 
     def run(self, command):
         subcommands = self.subcommands
@@ -110,5 +117,6 @@ name: Required, the name of the branch to delete. Note: this is irreversible!'''
         'create': create,
         'show': read,
         'update': update,
-        'delete': delete
+        'delete': delete,
+        'list': show_all
     }
