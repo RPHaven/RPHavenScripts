@@ -11,6 +11,7 @@ requests = "^2.27.1"
 argparse = "^1.4.0"
 "discord.py" = "^1.7.3"
 peewee = "^3.14.10"
+feedparser = "^6.0.8"
 
 [tool.poetry.dev-dependencies]
 

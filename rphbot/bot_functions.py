@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+import datetime
+import feedparser
+import hashlib
+import json
 import os
 import peewee
 
@@ -9,10 +13,28 @@ db.connect()
 class RPHBranch(peewee.Model):
     class Meta:
         database = db
+    day_constraints = [peewee.Check('check_day < 8'), peewee.Check('check_day > 0')]
     name = peewee.TextField(unique=True)
-    rss_feed = peewee.TextField()
-    discord_channel = peewee.IntegerField()
-    discord_role = peewee.IntegerField()
+    rss_feed = peewee.TextField(null=True)
+    discord_channel = peewee.IntegerField(null=True)
+    discord_role = peewee.IntegerField(null=True)
+    check_time = peewee.TimeField(null=True)
+    check_day = peewee.IntegerField(null=True, constraints=day_constraints)
+    last_update_hash = peewee.TextField(null=True)
+    last_update_date = peewee.DateTimeField(null=True)
+
+    def check_games_update(self):
+        if self.rss_feed is None:
+            return False, "No RSS feed to check!"
+        data = feedparser.parse(self.rss_feed)
+        latest = data['entries'][0]['summary_detail']['value']
+        entry_hash = hashlib.sha256(latest.encode()).hexdigest()
+        if entry_hash == self.last_update_hash:
+            return False, "No update since last posting"
+        self.last_update_hash = entry_hash
+        self.last_update_date = datetime.datetime.now()
+        self.save()
+        return True, entry_hash
     
 db.create_tables([RPHBranch])
 
@@ -23,30 +45,33 @@ class Branch:
     def create(self, args):
         if len(args) == 0:
             return '''Usage:
-`%branch create name [feed] [channel] [role]`
+`%branch create name {"option1": "value1", ...}`
 name: Required, the name of the branch to create. This cannot be changed.
-feed: Optional, the url of the RSS feed.
-channel: Optional, the discord ID of the channel to post in.
-role: Optional, the discord ID of the role to notify when posting.'''
-        feed, channel, role = [None]*3
-        for i, arg in enumerate(args):
-            if i == 0:
-                name = arg
-            elif i == 1:
-                feed = arg
-            elif i == 2:
-                channel = arg
-            else:
-                role = arg
+options:
+rss_feed: The url of the RSS feed.
+discord_channel: The discord ID of the channel to post in.
+discord_role: The discord ID of the role to notify when posting.
+check_time: The time of day to check for games updates to send. UTC.
+check_day: The day of the week to check for games updates to send. 1-7 where 1 is Monday.
+'''
+        name = args[0]
         if self.get_branch(name) is not None:
             return f'Branch {name} already exists!'
         newbranch = RPHBranch(name=name)
-        if feed is not None:
-            newbranch.rss_feed = feed
-        if channel is not None:
-            newbranch.discord_channel = channel
-        if role is not None:
-            newbranch.discord_role = role
+
+        try:
+            creation_data = {}
+            if len(args) > 1:
+                creation_data = json.loads(" ".join(args[1:]))
+        except ValueError as e:
+            return f'Something went wrong unpacking your arguments:\n```{e}```'
+
+        for update in creation_data.keys():
+            if update in ['name', 'rss_feed', 'discord_channel', 'discord_role', 'check_time', 'check_day']:
+                setattr(newbranch, update, creation_data[update])
+            else:
+                return f'{update} is not a valid key!'
+
         newbranch.save()
         return f'Created branch {newbranch.name}'
 
@@ -107,6 +132,17 @@ name: Required, the name of the branch to delete. Note: this is irreversible!'''
         names = "\n".join(names)
         return f'All branches:\n{names}'
 
+    def execute_feeds(self, args):
+        if len(args) > 0 and args[0] == 'help':
+            return '''Usage:
+%branch feeds [name]
+Runs the checker for the RSS feeds.
+name: Optional, if given, only checks the feed of this branch.
+'''
+        for item in RPHBranch.select():
+            return item.check_games_update()
+        return "Command is currently under construction - see log file for more info"
+
     def run(self, command):
         subcommands = self.subcommands
         if len(command) == 0 or command[0] not in subcommands.keys():
@@ -118,5 +154,6 @@ name: Required, the name of the branch to delete. Note: this is irreversible!'''
         'show': read,
         'update': update,
         'delete': delete,
-        'list': show_all
+        'list': show_all,
+        'feeds': execute_feeds
     }
